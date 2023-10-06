@@ -54,7 +54,7 @@ class course(models.Model):
     course_duration = models.IntegerField()
     course_price = models.IntegerField()
     acheivement = models.CharField(max_length = 20 , null=True)
-    category = models.ForeignKey(category, on_delete = models.CASCADE)
+    category = models.ForeignKey(category, on_delete = models.CASCADE , null=True)
 class learner(models.Model):
     user_id = models.ForeignKey(user, on_delete = models.CASCADE)
     streak = models.IntegerField()
@@ -68,16 +68,18 @@ class chapitres(models.Model):
     chapitre_duration = models.IntegerField()
 
 class videos(models.Model):
-    chapitre_id = models.ForeignKey(chapitres, on_delete = models.CASCADE)
+    course_id = models.ForeignKey(chapitres, on_delete = models.CASCADE)
     video_url = models.CharField(max_length = 100)
     video_title = models.CharField(max_length = 20)
 
-class quiz(models.Model):
-    chapitre_id = models.ForeignKey(chapitres, on_delete = models.CASCADE)
-    quiz_title = models.CharField(max_length = 20)
-    quiz_description = models.CharField(max_length = 100)
+class tasks(models.Model):
+    course_id = models.ForeignKey(chapitres, on_delete = models.CASCADE)
+    learner_id = models.ForeignKey(user, on_delete = models.CASCADE)
+    task_title = models.CharField(max_length = 20)
+    task_description = models.CharField(max_length = 100)
     question = models.CharField(max_length = 100)
     answer = models.CharField(max_length = 20)
+    done = models.BooleanField(default=False)
 
 class child_learner(models.Model):
     parent_id = models.ForeignKey(user, on_delete = models.CASCADE)
@@ -92,7 +94,7 @@ class child_enrolled(models.Model):
     course_progress = models.IntegerField()
 
 class adult_enrolled(models.Model):
-    adult_id = models.ForeignKey(user, on_delete = models.CASCADE)
+    learner_id = models.ForeignKey(user, on_delete = models.CASCADE)
     course_id = models.ForeignKey(course, on_delete = models.CASCADE)
     course_progress = models.IntegerField()
 

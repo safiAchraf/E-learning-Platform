@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from django.db import IntegrityError
-from .models import user, course, learner, chapitres , child_learner , child_enrolled , adult_enrolled
+from .models import user, course, learner, chapitres , child_learner , child_enrolled , adult_enrolled , tasks , videos
 from rest_framework.decorators import api_view , permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
@@ -168,7 +168,64 @@ def parentDashboard(request):
 @api_view(('GET','POST'))
 @permission_classes([IsAuthenticated])
 def courseView(request , course_id):
-    pass
+    if request.method == 'GET':
+        quizzez = quiz.objects.filter(course_id=course_id)
+        quizzez_data = []
+        for quiz in quizzez:
+            quizzez_data.append({
+                "quiz_id": quiz.id,
+                "quiz_title": quiz.quiz_title ,
+                "quiz_description": quiz.quiz_description,
+                "question": quiz.question,
+                "answer": quiz.answer
+            })
+        videoos = videos.objects.filter(course_id=course_id)
+        videoos_data = []
+        for video in videoos:
+            videoos_data.append({
+                "video_id": video.id,
+                "video_url": video.video_url ,
+                "video_title": video.video_title
+            })
+        
+        return Response(status=status.HTTP_200_OK, data= {
+            "quizzez": quizzez_data,
+            "videoos": videoos_data
+        })
+    elif request.method == 'POST':
+        if IsInstructor(request.user):
+            material_type = request.POST["material_type"]
+            if material_type == "task":
+                task_title = request.POST["task_title"]
+                task_description = request.POST["task_description"]
+                question = request.POST["question"]
+                answer = request.POST["answer"]
+                for receiver in adult_enrolled.objects.filter(course_id=course_id):
+                    newQuiz = quiz(course_id=course_id, task_title=task_title, task_description=task_description, question=question, answer=answer , learner_id=receiver.learner_id)
+                    newQuiz.save()
+                for receiver in child_enrolled.objects.filter(course_id=course_id):
+                    newQuiz = quiz(course_id=course_id, task_title=task_title, task_description=task_description, question=question, answer=answer , learner_id=receiver.child_id)
+                    newQuiz.save()
+
+                return Response(status=status.HTTP_201_CREATED, data= {
+                    "message": "Quiz created successfully."
+                })
+            elif material_type == "video":
+                video_url = request.POST["video_url"]
+                video_title = request.POST["video_title"]
+                newVideo = videos(course_id=course_id, video_url=video_url, video_title=video_title)
+                newVideo.save()
+                return Response(status=status.HTTP_201_CREATED, data= {
+                    "message": "Video created successfully."
+                })
+            
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN, data= {
+                "message": "You are not an instructor."
+            })
+
+
+
 
 
 @api_view(('GET','POST'))
@@ -176,4 +233,15 @@ def courseView(request , course_id):
 def childView(request , child_id):
     courses = child_enrolled.objects.filter(child_id=child_id)
     courses_data = []
+    for course in courses:
+        courses_data.append({
+            "course_id": course.course_id.id,
+            "course_name": course.course_id.course_name ,
+            "course_description": course.course_id.course_description,
+            "course_rating": course.course_id.rating,
+            "course_duration": course.course_id.course_duration,
+            "course_price": course.course_id.course_price,
+            "course_acheivement": course.course_id.acheivement
+        })
+
 
