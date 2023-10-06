@@ -21,36 +21,36 @@ class CustomUserManager(BaseUserManager):
 
 class user(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
+    full_name = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_parent = models.BooleanField(default=False)
     is_instructor = models.BooleanField(default=False)
     is_learner = models.BooleanField(default=False)
+    phone_number = models.CharField(max_length=20 , null=True)
     # Add your custom fields for instructors here
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
+    REQUIRED_FIELDS = ['full_name', 'phone_number']
 
     def __str__(self):
         return self.email
 
-class category(models.Model):
-    category_name = models.CharField(max_length = 20)
-    category_description = models.CharField(max_length = 100)
+class Interests(models.Model):
+    interest_name = models.CharField(max_length = 20)
+    interest_description = models.CharField(max_length = 100)
 
-class user_category(models.Model):
+class user_interests(models.Model):
     user_id = models.ForeignKey(user, on_delete = models.CASCADE)
-    category_id = models.ForeignKey(category, on_delete = models.CASCADE)
+    interest_id = models.ForeignKey(category, on_delete = models.CASCADE)
 
 class course(models.Model):
     instructor_id = models.ForeignKey(user, on_delete = models.CASCADE)
     course_name = models.CharField(max_length = 20)
     course_description = models.CharField(max_length = 100)
-    rating = models.IntegerField(default=0)
+    course_rating = models.IntegerField(default=0)
     course_duration = models.IntegerField()
     course_price = models.IntegerField()
     acheivement = models.CharField(max_length = 20 , null=True)
@@ -61,11 +61,6 @@ class learner(models.Model):
     score = models.IntegerField()
     current_course = models.ForeignKey(course, on_delete = models.CASCADE)
 
-class chapitres(models.Model):
-    course_id = models.ForeignKey(course, on_delete = models.CASCADE)
-    chapitre_name = models.CharField(max_length = 20)
-    chapitre_description = models.CharField(max_length = 100)
-    chapitre_duration = models.IntegerField()
 
 class videos(models.Model):
     course_id = models.ForeignKey(chapitres, on_delete = models.CASCADE)
@@ -97,6 +92,23 @@ class adult_enrolled(models.Model):
     learner_id = models.ForeignKey(user, on_delete = models.CASCADE)
     course_id = models.ForeignKey(course, on_delete = models.CASCADE)
     course_progress = models.IntegerField()
+
+
+class Rating(models.Model):
+    course_id = models.ForeignKey(course, on_delete = models.CASCADE)
+    learner_id = models.ForeignKey(user, on_delete = models.CASCADE)
+    rating = models.IntegerField()
+    review = models.CharField(max_length = 100)
+
+class messages(models.Model):
+    learner_id = models.ForeignKey(user, on_delete = models.CASCADE , related_name='learner_id')
+    instructor_id = models.ForeignKey(user, on_delete = models.CASCADE , related_name='instructor_id')
+    course_id = models.ForeignKey(course, on_delete = models.CASCADE)
+    message_title = models.CharField(max_length = 20)
+    message_body = models.CharField(max_length = 100)
+    time = models.DateTimeField(auto_now_add=True)
+    responded = models.BooleanField(default=False)
+
 
 
 
