@@ -44,7 +44,7 @@ class Interests(models.Model):
 
 class user_interests(models.Model):
     user_id = models.ForeignKey(user, on_delete = models.CASCADE)
-    interest_id = models.ForeignKey(category, on_delete = models.CASCADE)
+    interest_id = models.ForeignKey(Interests, on_delete = models.CASCADE)
 
 class course(models.Model):
     instructor_id = models.ForeignKey(user, on_delete = models.CASCADE)
@@ -54,7 +54,7 @@ class course(models.Model):
     course_duration = models.IntegerField()
     course_price = models.IntegerField()
     acheivement = models.CharField(max_length = 20 , null=True)
-    category = models.ForeignKey(category, on_delete = models.CASCADE , null=True)
+    interest = models.ForeignKey(Interests, on_delete = models.CASCADE , null=True)
 class learner(models.Model):
     user_id = models.ForeignKey(user, on_delete = models.CASCADE)
     streak = models.IntegerField()
@@ -63,12 +63,12 @@ class learner(models.Model):
 
 
 class videos(models.Model):
-    course_id = models.ForeignKey(chapitres, on_delete = models.CASCADE)
+    course_id = models.ForeignKey(course, on_delete = models.CASCADE)
     video_url = models.CharField(max_length = 100)
     video_title = models.CharField(max_length = 20)
 
 class tasks(models.Model):
-    course_id = models.ForeignKey(chapitres, on_delete = models.CASCADE)
+    course_id = models.ForeignKey(course, on_delete = models.CASCADE)
     learner_id = models.ForeignKey(user, on_delete = models.CASCADE)
     task_title = models.CharField(max_length = 20)
     task_description = models.CharField(max_length = 100)

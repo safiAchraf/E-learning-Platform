@@ -16,6 +16,7 @@ def register(request):
         full_name = request.POST["name"]
         email = request.POST["email"]
         password = request.POST["password"]
+        number = request.POST["number"]
         user_type = request.POST.get("type" , "")
         is_parent = False
         is_learner = False
@@ -30,7 +31,7 @@ def register(request):
         
         # Attempt to create new user
         try:
-            newuser = user.objects.create_user(email , password, full_name = full_name, is_parent=is_parent , is_learner=is_learner, is_instructor=is_instructor)
+            newuser = user.objects.create_user(email , password, full_name = full_name, is_parent=is_parent , is_learner=is_learner, is_instructor=is_instructor , phone_number=number)
             newuser.save()
         except IntegrityError as e:
             return Response(status=status.HTTP_400_BAD_REQUEST, data= {
