@@ -75,6 +75,34 @@ def register(request):
 
 @api_view(('GET','POST'))
 @permission_classes([IsAuthenticated])
+def getuser(request):
+    if request.method == "GET":
+        user_type = ""
+        if request.user.is_parent:
+            user_type = "parental"
+        elif request.user.is_learner:
+            user_type = "personal"
+        elif request.user.is_instructor:
+            user_type = "instructor"
+
+        return Response(status=status.HTTP_200_OK, data= {
+            "user": {
+                "id": request.user.id,
+                "full_name": request.user.full_name,
+                "email": request.user.email,
+                "phone_number": request.user.phone_number,
+                "type": user_type
+            }
+        })
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST , data= {
+            "message": "GET request required."
+        })
+    
+    
+
+@api_view(('GET','POST'))
+@permission_classes([IsAuthenticated])
 @csrf_exempt
 def dashboard(request):
     if IsLearner(request.user):
@@ -128,11 +156,12 @@ def dashboard(request):
                 "courses": courses_data
             })
         elif request.method == "POST":
-            course_name = request.POST["course_name"]
-            course_description = request.POST["course_description"]
-            course_duration = request.POST["course_duration"]
-            course_price = request.POST["course_price"]
-            course_acheivement = request.POST["course_acheivement"]
+            data = json.loads(request.body)
+            course_name = data["course_name"]
+            course_description = data["course_description"]
+            course_duration = data["course_duration"]
+            course_price = data["course_price"]
+            course_acheivement = data["course_acheivement"]
             newCourse = course(instructor_id=request.user, course_name=course_name, course_description=course_description, course_duration=course_duration, course_price=course_price, acheivement=course_acheivement)
             newCourse.save()
             return Response(status=status.HTTP_201_CREATED, data= {
