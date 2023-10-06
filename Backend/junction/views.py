@@ -9,6 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import Group
 from .permisions import IsParent, IsInstructor, IsLearner
 import json
+from django.http import HttpResponse
 
 @api_view(('GET','POST'))
 @csrf_exempt
@@ -62,11 +63,15 @@ def register(request):
         refresh = RefreshToken.for_user(newuser)
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
-        return Response(status=status.HTTP_201_CREATED, data= {
-            "message": "User created successfully.",
-            "access_token": access_token,
-            "refresh_token": refresh_token
-        })
+        # return Response(status=status.HTTP_201_CREATED, data= {
+        #     "message": "User created successfully.",
+        #     "access_token": access_token,
+        #     "refresh_token": refresh_token
+        # })
+        res = HttpResponse()
+        res.set_cookie('access_token', access_token , max_age=3600)
+        return res
+    
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST , data= {
             "message": "POST request required."
@@ -99,7 +104,7 @@ def getuser(request):
             "message": "GET request required."
         })
     
-    
+
 
 @api_view(('GET','POST'))
 @permission_classes([IsAuthenticated])
