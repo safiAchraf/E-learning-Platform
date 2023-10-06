@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from django.utils import timezone
+
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -24,6 +24,7 @@ class user(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
     is_parent = models.BooleanField(default=False)
     is_instructor = models.BooleanField(default=False)
     is_learner = models.BooleanField(default=False)
@@ -37,14 +38,23 @@ class user(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+class category(models.Model):
+    category_name = models.CharField(max_length = 20)
+    category_description = models.CharField(max_length = 100)
+
+class user_category(models.Model):
+    user_id = models.ForeignKey(user, on_delete = models.CASCADE)
+    category_id = models.ForeignKey(category, on_delete = models.CASCADE)
 
 class course(models.Model):
     instructor_id = models.ForeignKey(user, on_delete = models.CASCADE)
     course_name = models.CharField(max_length = 20)
     course_description = models.CharField(max_length = 100)
-    rating = models.IntegerField()
+    rating = models.IntegerField(default=0)
     course_duration = models.IntegerField()
     course_price = models.IntegerField()
+    acheivement = models.CharField(max_length = 20 , null=True)
+    category = models.ForeignKey(category, on_delete = models.CASCADE)
 class learner(models.Model):
     user_id = models.ForeignKey(user, on_delete = models.CASCADE)
     streak = models.IntegerField()
@@ -71,9 +81,10 @@ class quiz(models.Model):
 
 class child_learner(models.Model):
     parent_id = models.ForeignKey(user, on_delete = models.CASCADE)
-    child_name = models.CharField(max_length = 20)
-    child_age = models.IntegerField()
-    child_level = models.IntegerField()
+    name = models.CharField(max_length = 20)
+    age = models.IntegerField()
+    level = models.IntegerField(default=0)
+    last_achievement = models.CharField(max_length = 20 , null=True)
 
 class child_enrolled(models.Model):
     child_id = models.ForeignKey(child_learner, on_delete = models.CASCADE)
@@ -84,4 +95,7 @@ class adult_enrolled(models.Model):
     adult_id = models.ForeignKey(user, on_delete = models.CASCADE)
     course_id = models.ForeignKey(course, on_delete = models.CASCADE)
     course_progress = models.IntegerField()
+
+
+
 
