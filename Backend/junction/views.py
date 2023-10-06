@@ -8,16 +8,19 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import Group
 from .permisions import IsParent, IsInstructor, IsLearner
+import json
 
 @api_view(('GET','POST'))
 @csrf_exempt
 def register(request):
     if request.method == "POST":
-        full_name = request.POST["name"]
-        email = request.POST["email"]
-        password = request.POST["password"]
-        number = request.POST["number"]
-        user_type = request.POST.get("type" , "")
+        data = json.loads(request.body)
+        full_name = data["name"]
+        email = data["email"]
+        password = data["password"]
+        number = data["number"]
+        user_type = data["type"]
+        
         is_parent = False
         is_learner = False
         is_instructor = True
