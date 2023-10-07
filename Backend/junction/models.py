@@ -81,7 +81,10 @@ class child_learner(models.Model):
     name = models.CharField(max_length = 20)
     age = models.IntegerField()
     level = models.IntegerField(default=0)
+    score = models.IntegerField(default=0 , null=True)
+    streak = models.IntegerField(default=0 , null=True)
     last_achievement = models.CharField(max_length = 20 , null=True)
+    current_course = models.ForeignKey(course, on_delete = models.CASCADE , null=True)
 
 class child_enrolled(models.Model):
     child_id = models.ForeignKey(child_learner, on_delete = models.CASCADE)

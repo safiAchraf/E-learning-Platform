@@ -9,7 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import Group
 from .permisions import IsParent, IsInstructor, IsLearner
 import json
-from django.http import HttpResponse
+
 
 @api_view(('GET','POST'))
 @csrf_exempt
@@ -21,6 +21,10 @@ def register(request):
         password = data["password"]
         number = data["number"]
         user_type = data["type"]
+        if password == "" or email == "" or full_name == "" or number == "" or user_type == "":
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE, data= {
+                "message": "All fields are required."
+            })
         
         is_parent = False
         is_learner = False
@@ -63,14 +67,11 @@ def register(request):
         refresh = RefreshToken.for_user(newuser)
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
-        # return Response(status=status.HTTP_201_CREATED, data= {
-        #     "message": "User created successfully.",
-        #     "access_token": access_token,
-        #     "refresh_token": refresh_token
-        # })
-        res = HttpResponse()
-        res.set_cookie('access_token', access_token , max_age=3600)
-        return res
+        return Response(status=status.HTTP_201_CREATED, data= {
+            "message": "User created successfully.",
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        })
     
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST , data= {
@@ -105,7 +106,7 @@ def getuser(request):
         })
     
 
-
+# learner -> courses / parent -> childs / instructor -> courses and upload course
 @api_view(('GET','POST'))
 @permission_classes([IsAuthenticated])
 @csrf_exempt
@@ -117,6 +118,7 @@ def dashboard(request):
             for course in courses:
                 courses_data.append({
                     "course_id": course.course_id.id,
+                    "course_insrtuctor": course.course_id.instructor_id.full_name,
                     "course_name": course.course_id.course_name ,
                     "course_description": course.course_id.course_description,
                     "course_rating": course.course_id.rating,
@@ -129,19 +131,20 @@ def dashboard(request):
                 "courses": courses_data
             })
     elif IsParent(request.user):
-        childs = child_learner.objects.filter(parent_id=request.user)
-        childs_data = []
-        for child in childs:
-            childs_data.append({
-                "child_id": child.id,
-                "child_name": child.name ,
-                "child_streak": child.streak,
-                "child_score": child.score,
-                "child_current_course": child.current_course.course_name
+        if request.method == "GET":
+            childs = child_learner.objects.filter(parent_id=request.user)
+            childs_data = []
+            for child in childs:
+                childs_data.append({
+                    "child_id": child.id,
+                    "child_name": child.name ,
+                    "child_streak": child.streak,
+                    "child_score": child.score,
+                    "child_current_course": child.current_course.course_name
+                })
+            return Response(status=status.HTTP_200_OK, data= {
+                "childs": childs_data
             })
-        return Response(status=status.HTTP_200_OK, data= {
-            "childs": childs_data
-        })
     elif IsInstructor(request.user):
         if request.method == "GET":
             courses = course.objects.filter(instructor_id=request.user)
@@ -195,7 +198,9 @@ def parentDashboard(request):
                     "child_name": child.name ,
                     "child_streak": child.streak,
                     "child_score": child.score,
-                    "child_current_course": child.current_course.course_name
+                    "child_current_course": child.current_course.course_name,
+                    "last_achievement": child.last_achievement,
+                    "level": child.level
                 })
             return Response(status=status.HTTP_200_OK, data= {
                 "childs": childs_data
@@ -211,7 +216,7 @@ def parentDashboard(request):
             
     else:
         return Response(status=status.HTTP_403_FORBIDDEN, data= {
-            "message": "You are not a parent."
+            "error": "Permission denied."
         })
     
 
