@@ -1,3 +1,4 @@
+(we still did not link the backend with the frontend)
 ## Database schema
 
 URL('https://drawsql.app/teams/safi-2/diagrams/junction')
