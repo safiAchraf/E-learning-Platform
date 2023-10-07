@@ -206,8 +206,9 @@ def parentDashboard(request):
                 "childs": childs_data
             })
         if request.method == "POST":
-            child_name = request.POST["name"]
-            child_age = request.POST["age"]
+            data = json.loads(request.body)
+            child_name = data["name"]
+            child_age = data["age"]
             newChild = child_learner(parent_id=request.user, name=child_name, age=child_age)
             newChild.save()
             return Response(status=status.HTTP_201_CREATED, data= {
@@ -261,12 +262,13 @@ def courseView(request , course_id):
     
     elif request.method == 'POST':
         if IsInstructor(request.user):
-            material_type = request.POST["material_type"]
+            data = json.loads(request.body)
+            material_type = data["material_type"]
             if material_type == "task":
-                task_title = request.POST["task_title"]
-                task_description = request.POST["task_description"]
-                question = request.POST["question"]
-                answer = request.POST["answer"]
+                task_title = data["task_title"]
+                task_description = data["task_description"]
+                question = data["question"]
+                answer = data["answer"]
                 for receiver in adult_enrolled.objects.filter(course_id=course_id):
                     newtask= tasks(course_id=course_id, task_title=task_title, task_description=task_description, question=question, answer=answer , learner_id=receiver.learner_id)
                     newtask.save()
@@ -278,8 +280,8 @@ def courseView(request , course_id):
                     "message": "Quiz created successfully."
                 })
             elif material_type == "video":
-                video_url = request.POST["video_url"]
-                video_title = request.POST["video_title"]
+                video_url = data["video_url"]
+                video_title = data["video_title"]
                 newVideo = videos(course_id=course_id, video_url=video_url, video_title=video_title)
                 newVideo.save()
                 return Response(status=status.HTTP_201_CREATED, data= {
@@ -307,6 +309,10 @@ def childView(request , child_id):
             "course_price": course.course_id.course_price,
             "course_acheivement": course.course_id.acheivement
         })
+    return Response(status=status.HTTP_200_OK, data= {
+        "courses": courses_data
+    })
+
 
 @api_view(('GET','POST'))
 @permission_classes([IsAuthenticated])
@@ -350,7 +356,7 @@ def task_View(request , task_id):
         return Response(status=status.HTTP_200_OK, data= {
             "task": task_data
         })
-    elif request.method == 'POST':
+    elif request.method == 'PUT':
         task_id = request.POST["task_id"]
         task = tasks.objects.get(id=task_id)
         task.done = True
@@ -441,7 +447,6 @@ def message_response(request , message_id):
         oldMessage.message_body += "\n" + message_description
         oldMessage.responded = True
         oldMessage.save()
-
 
 
     else:
