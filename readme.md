@@ -1,11 +1,13 @@
-## Database schema
 
-URL('https://drawsql.app/teams/safi-2/diagrams/junction')
+### Database Schema : 
+You can access it via [DrawSQL](https://drawsql.app/teams/safi-2/diagrams/junction)
+
+![App Screenshot](https://i.ibb.co/0Kmp0CQ/junction-schema.png)
 
 ## Tech Used
 
 - **Back-End**: Django, Django REST framework
-- **Database**: Sqlite3 for simplicity, you can use any another relational database (MySQL , PostgreSQL)
+- **Database**: PostgreSql hosted on cockroachDB
 - **Authentication**: JWT (JSON Web Tokens)
 
 ## End Points
@@ -22,7 +24,7 @@ URL('https://drawsql.app/teams/safi-2/diagrams/junction')
   returns the info of the user making the request
 
 - **api/dashboard/** :
-  based on the type of the user making the request , this endpoint returns the appropriate data for the dashboard
+  based on the type of the user making the request , this endpoint returns the appropriate data for the dashboard for each type of user.
 
 - **api/dashboard/parent/** :
   returns the info the childs of the parent makeing the request . also offers the possibility of POST request for adding more childs
@@ -40,3 +42,5 @@ URL('https://drawsql.app/teams/safi-2/diagrams/junction')
 
   POST : offers the instructor to post a new course material to the course with id= course_id
   the material may differ between a task for all the students in the course or a video
+
+++ Others ( i am too lazy to list them )
