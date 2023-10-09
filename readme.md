@@ -1,3 +1,4 @@
+### E-learning Platform for JunctionsXalger Hackathon
 
 ### Database Schema : 
 You can access it via [DrawSQL](https://drawsql.app/teams/safi-2/diagrams/junction)
