@@ -7,7 +7,7 @@ You can access it via [DrawSQL](https://drawsql.app/teams/safi-2/diagrams/juncti
 ## Tech Used
 
 - **Back-End**: Django, Django REST framework
-- **Database**: Sqlite3 for simplicity, you can use any another relational database (MySQL , PostgreSQL)
+- **Database**: PostgreSql hosted on cockroachDB
 - **Authentication**: JWT (JSON Web Tokens)
 
 ## End Points
@@ -24,7 +24,7 @@ You can access it via [DrawSQL](https://drawsql.app/teams/safi-2/diagrams/juncti
   returns the info of the user making the request
 
 - **api/dashboard/** :
-  based on the type of the user making the request , this endpoint returns the appropriate data for the dashboard
+  based on the type of the user making the request , this endpoint returns the appropriate data for the dashboard for each type of user.
 
 - **api/dashboard/parent/** :
   returns the info the childs of the parent makeing the request . also offers the possibility of POST request for adding more childs
